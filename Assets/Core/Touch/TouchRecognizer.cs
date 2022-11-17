@@ -22,7 +22,7 @@ namespace Core.Touch
             Observable
                 .EveryUpdate()
                 .Where(x => Input.touchCount > 0)
-                .Where(x => Input.GetTouch(0).phase is TouchPhase.Moved)
+                .Where(x => Input.GetTouch(0).phase is TouchPhase.Moved or TouchPhase.Stationary)
                 .Subscribe(x => OnTouchMoveOrHold(Input.GetTouch(0).position));
         }
 
