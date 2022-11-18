@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using Core.Maze;
 using UniRx;
 using UnityEngine;
@@ -13,7 +14,7 @@ namespace Core.Ball
         private Vector2Int _target;
         private Vector2Int _gridPosition = new Vector2Int(1, 1);
         private float _speed = 0.1f;
-        private bool _isMoving;
+        private bool _isMoving = false;
 
         private void Start()
         {
@@ -36,9 +37,28 @@ namespace Core.Ball
             {
                 _gridPosition += _target;
                 _isMoving = false;
+                
+                if (!CheckIsFork())
+                {
+                    TryInitialContinueMove(_target);
+                }
             }
         }
 
+        private void TryInitialContinueMove(Vector2Int target)
+        {
+            _isMoving = false;
+            InitializeMove(target);
+        }
+
+        private bool CheckIsFork()
+        {
+            var commonWalls = GetCountOfFork();
+            var isFork = commonWalls >= 3;
+            
+            return isFork;
+        }
+        
         private Vector3 GetTargetPosition(Vector2Int direction)
         {
             var cell = GetTargetCellFromMaze(direction);
@@ -56,6 +76,43 @@ namespace Core.Ball
             var targetCell = maze.GetCellByPosition(offset);
 
             return targetCell;
+        }
+
+        private int GetCountOfFork()
+        {
+            var commonWalls = 0;
+
+            var myCell = GetTargetCellFromMaze(Vector2Int.zero);
+            var upCell = GetTargetCellFromMaze(new Vector2Int(0, 1));
+            var downCell = GetTargetCellFromMaze(new Vector2Int(0, -1));
+            var leftCell = GetTargetCellFromMaze(new Vector2Int(-1, 0));
+            var rightCell = GetTargetCellFromMaze(new Vector2Int(1, 0));
+
+            if (upCell != null)
+            {
+                if (!myCell.mCell.wallU.activeSelf && !upCell.mCell.wallD.activeSelf)
+                    commonWalls++;
+            }
+            
+            if (downCell != null)
+            {
+                if (!myCell.mCell.wallD.activeSelf && !downCell.mCell.wallU.activeSelf)
+                    commonWalls++;
+            }
+            
+            if (leftCell != null)
+            {
+                if (!myCell.mCell.wallL.activeSelf && !leftCell.mCell.wallR.activeSelf)
+                    commonWalls++;
+            }
+            
+            if (rightCell != null)
+            {
+                if (!myCell.mCell.wallD.activeSelf && !rightCell.mCell.wallL.activeSelf)
+                    commonWalls++;
+            }
+
+            return commonWalls;
         }
         
         private bool CheckCanMoveOnTargetDirection(Vector2Int direction)
@@ -92,22 +149,27 @@ namespace Core.Ball
                         break;
                 }
             }
+
             return canMove;
         }
-        
-        public void InitializeMove(Vector2 direction)
+
+        public void TryInitializeMove(Vector2 direction)
         {
             if (_isMoving) return;
-            
+            InitializeMove(direction);
+        }
+
+        private void InitializeMove(Vector2 direction)
+        {
             _target = default;
             _targetPosition = default;
             
             var absXBiggerThanY = Mathf.Abs(direction.x) >= Mathf.Abs(direction.y);
             
             _target = absXBiggerThanY ? 
-                new Vector2Int( (int)direction.x / 2, 0) : 
-                new Vector2Int(0, (int)direction.y / 2);
-
+                new Vector2Int(Mathf.RoundToInt(direction.x), 0) : 
+                new Vector2Int(0, Mathf.RoundToInt(direction.y));
+            
             _targetPosition = GetTargetPosition(_target);
 
             if (CheckCanMoveOnTargetDirection(_target))

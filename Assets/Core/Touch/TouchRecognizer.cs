@@ -29,12 +29,14 @@ namespace Core.Touch
         private void OnTouchMoveOrHold(Vector2 position)
         {
             _secondTouchPosition = position;
+            
+            var distance = Vector2.Distance(_firstTouchPosition, _secondTouchPosition);
 
-            var direction = _secondTouchPosition - _firstTouchPosition;
-            var clampDirection = Vector2.ClampMagnitude(direction, 2f);
-
-            if (Mathf.Abs(clampDirection.x) >= 2f || Mathf.Abs(clampDirection.y) >= 2f)
+            if (distance >= 50f)
             {
+                var direction = _secondTouchPosition - _firstTouchPosition;
+                var clampDirection = Vector2.ClampMagnitude(direction, 1f);
+                
                 OnSwipeRecognized(clampDirection);
                 _firstTouchPosition = _secondTouchPosition = Vector2.zero;
             }
@@ -42,7 +44,7 @@ namespace Core.Touch
 
         private void OnSwipeRecognized(Vector2 clampDirection)
         {
-            ball.InitializeMove(clampDirection);
+            ball.TryInitializeMove(clampDirection);
         }
 
         private void OnTouchBegin(Vector2 position)
