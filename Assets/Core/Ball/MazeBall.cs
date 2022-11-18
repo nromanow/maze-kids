@@ -1,5 +1,3 @@
-using System;
-using System.Linq;
 using Core.Maze;
 using UniRx;
 using UnityEngine;
