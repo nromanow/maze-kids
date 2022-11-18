@@ -89,25 +89,33 @@ namespace Core.Ball
             if (upCell != null)
             {
                 if (!myCell.mCell.wallU.activeSelf && !upCell.mCell.wallD.activeSelf)
+                {
                     commonWalls++;
+                }
             }
             
             if (downCell != null)
             {
                 if (!myCell.mCell.wallD.activeSelf && !downCell.mCell.wallU.activeSelf)
+                {
                     commonWalls++;
+                }
             }
             
             if (leftCell != null)
             {
                 if (!myCell.mCell.wallL.activeSelf && !leftCell.mCell.wallR.activeSelf)
+                {
                     commonWalls++;
+                }
             }
             
             if (rightCell != null)
             {
-                if (!myCell.mCell.wallD.activeSelf && !rightCell.mCell.wallL.activeSelf)
+                if (!myCell.mCell.wallR.activeSelf && !rightCell.mCell.wallL.activeSelf)
+                {
                     commonWalls++;
+                }
             }
 
             return commonWalls;
